@@ -1,0 +1,94 @@
+#!/bin/bash
+
+# This is a script wrapper to launch Ableton Live. It also lets you set up the Desktop entry file for the application.
+
+# NOTE: Modify the EXEC_PATH variable to point to the Ableton Live executable on your system,
+# same goes for the WINEPREFIX variable.
+
+WINEPREFIX="$HOME/.wine"
+EXEC_PATH="$HOME/.wine/drive_c/ProgramData/Ableton/Live 12 Suite/Program/Ableton Live 12 Suite.exe"
+
+WINE_EXTENSIONS=(
+    als
+    abl
+    adg
+    adv
+    alc
+    alp
+    auz
+    amxd
+    ablbundle
+)
+
+function create_desktop_entry {
+    cat >"$HOME/.local/share/applications/abletonlive.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=Ableton Live 12 Suite
+Exec=env WINEPREFIX="$WINEPREFIX" abletonlive %U
+MimeType=x-scheme-handler/ableton;application/x-wine-extension-als;application/x-wine-extension-abl;application/x-wine-extension-adg;application/x-wine-extension-adv;application/x-wine-extension-alc;application/x-wine-extension-alp;application/x-wine-extension-auz;application/x-wine-extension-amxd;application/x-wine-extension-ablbundle;
+Path=$WINEPREFIX/drive_c/ProgramData/Ableton/Live 12 Suite/Program/
+NoDisplay=false
+StartupNotify=true
+Icon=7CC2_Ableton Live 12 Suite.0
+Categories=AudioVideo;
+Name[en]=Ableton Live 12 Suite
+Name[en_US]=Ableton Live 12 Suite
+Name[en_US.UTF-8]=Ableton Live 12 Suite
+Hidden=false
+Terminal=false
+StartupWMClass=ableton live 12 suite.exe
+EOF
+
+    chmod +x "$HOME/.local/share/applications/abletonlive.desktop"
+    echo "Desktop entry created at $HOME/.local/share/applications/abletonlive.desktop"
+
+    # Delete winemenubuilder's generated MIME associations (duplicate entries)
+    for ext in "${WINE_EXTENSIONS[@]}"; do
+        rm -vf "$HOME/.local/share/applications/wine-extension-$ext.desktop"
+    done
+
+    # delete ableton:// protocol handler
+    rm -vf "$HOME/.local/share/applications/wine-protocol-ableton.desktop"
+
+
+}
+
+# check arguments if starts with ableton:// (handle URL)
+# if not, prepend Z: to the arg
+function arg_is_uri {
+    if [[ "$1" == "ableton://"* ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function launch_live {
+    if [ -f "$EXEC_PATH" ]; then
+        if [ -z "$1" ]; then
+            exec wine "$EXEC_PATH"
+        else
+            if arg_is_uri "$1"; then
+                exec wine "$EXEC_PATH" "$1"
+            else
+                abs_path=$(realpath "$1")
+                exec wine "$EXEC_PATH" "Z:$abs_path"
+            fi
+        fi
+    else
+        echo "Executable not found: $EXEC_PATH"
+        exit 1
+    fi
+
+}
+
+# handle arguments
+
+if [ "$1" == "--create-desktop-entry" ]; then
+    echo "Creating desktop entry..."
+    create_desktop_entry
+    exit 0
+fi
+
+launch_live "$1"
