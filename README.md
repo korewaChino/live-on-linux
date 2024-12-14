@@ -93,4 +93,4 @@ This should copy the necessary drivers to the Wine prefix and register them.
 
 ## Known issues
 
-- When using PipeWire with WineASIO, you may get occasional audio artifacts caused by XRuns. This is a known issue with PipeWire and is being worked on, you may try changing the buffer size in the PipeWire settings to mitigate this issue, and consider setting up real-time scheduling on your system.
+- When using PipeWire with WineASIO, you may get occasional audio artifacts caused by XRuns. This is a known issue with PipeWire and is being worked on, you may try changing the buffer size in the PipeWire settings to mitigate this issue, and consider setting up real-time scheduling on your system. You may also consider changing the amount of JACK ports WineASIO uses to reduce the number of XRuns.
