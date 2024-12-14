@@ -17,6 +17,12 @@ WINEPREFIX=~/.wine wineboot
 
 Change `WINEPREFIX` to the path of your Wine prefix if it is not `~/.wine`. You do not need to set `WINEPREFIX` if you're using `~/.wine` anyway.
 
+Now, install Visual C++ 2015 and 2017 runtimes using Winetricks.
+
+```bash
+WINEPREFIX=~/.wine winetricks vcrun2015 vcrun2017
+```
+
 Download the latest version of Ableton Live from the [official website](https://www.ableton.com/en/live/). The installation process is straightforward and does not require any special instructions.
 
 After installing Ableton Live using the system Wine installation, install the wrapper script to your $PATH (e.g. `~/.local/bin`) and make it executable.
